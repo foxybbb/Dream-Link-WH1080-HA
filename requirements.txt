@@ -1,0 +1,4 @@
+paho-mqtt==2.1.0
+pause==0.3
+pyusb==1.2.1
+usb==0.0.83.dev0
