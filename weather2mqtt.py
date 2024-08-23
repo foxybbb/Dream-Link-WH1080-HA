@@ -8,8 +8,8 @@ import paho.mqtt.client as mqtt
 import json
 VENDOR = 0x1941
 PRODUCT = 0x8021
-WIND_DIRS = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW',
-             'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW']
+WIND_DIRS = ['С', 'ССВ', 'СВ', 'ВСВ', 'В', 'ВЮВ', 'ЮВ', 'ЮЮВ', 'Ю', 'ЮЮЗ',
+             'ЮЗ', 'ЗЮЗ', 'З', 'ЗСЗ', 'СЗ', 'ССЗ']
 max_rain_jump = 10
 previous_rain = 0
 # interval for data collection
@@ -157,95 +157,93 @@ try:
             "model": "WH1080 USB Weather Station"
         }
 
-        # Base MQTT topic for the weather station
-        base_topic = "homeassistant/sensor/1232141"
-
         # Sample sensor data with default values
         sensors = {
             "indoor_humidity": {
-                "name": "Indoor Humidity",
+                "name": "Влажность внутри",
                 "unit_of_measurement": "%",
                 "device_class": "humidity",
                 "unique_id": "indoor_humidity_sensor",
                 "value": indoor_humidity  
             },
             "outdoor_humidity": {
-                "name": "Outdoor Humidity",
+                "name": "Влажность снаружи",
                 "unit_of_measurement": "%",
                 "device_class": "humidity",
                 "unique_id": "outdoor_humidity_sensor",
                 "value": outdoor_humidity  
             },
             "indoor_temperature": {
-                "name": "Indoor Temperature",
+                "name": "Температура внутри",
                 "unit_of_measurement": "°C",
                 "device_class": "temperature",
                 "unique_id": "indoor_temperature_sensor",
                 "value": indoor_temperature  
             },
             "outdoor_temperature": {
-                "name": "Outdoor Temperature",
+                "name": "Температура снаружи",
                 "unit_of_measurement": "°C",
                 "device_class": "temperature",
                 "unique_id": "outdoor_temperature_sensor",
                 "value": outdoor_temperature  
             },
             "outdoor_dew_point": {
-                "name": "Outdoor Dew Point",
+                "name": "Точка росы снаружи",
                 "unit_of_measurement": "°C",
                 "device_class": "temperature",
                 "unique_id": "outdoor_dew_point_sensor",
-                "value":  round(outdoor_dew_point, 2)  
+                "value": round(outdoor_dew_point, 2)  
             },
             "wind_chill_temp": {
-                "name": "Wind Chill",
+                "name": "Ощущаемая температура",
                 "unit_of_measurement": "°C",
                 "device_class": "temperature",
                 "unique_id": "wind_chill_sensor",
                 "value": wind_chill_temp  
             },
             "wind_speed": {
-                "name": "Wind Speed",
-                "unit_of_measurement": "km/h",
+                "name": "Скорость ветра",
+                "unit_of_measurement": "км/ч",
                 "device_class": "speed",
                 "unique_id": "wind_speed_sensor",
                 "value": wind_speed  
             },
             "gust_speed": {
-                "name": "Gust Speed",
-                "unit_of_measurement": "km/h",
+                "name": "Скорость порывов ветра",
+                "unit_of_measurement": "км/ч",
                 "device_class": "speed",
                 "unique_id": "gust_speed_sensor",
                 "value": gust_speed  
             },
             "wind_dir": {
-                "name": "Wind Direction",
+                "name": "Направление ветра",
                 "icon": "mdi:compass",
                 "unique_id": "wind_direction_sensor",
                 "value": WIND_DIRS[wind_dir]  
             },
             "rain_diff": {
-                "name": "Rainfall",
-                "unit_of_measurement": "mm",
+                "name": "Количество осадков",
+                "unit_of_measurement": "мм",
                 "device_class": "precipitation",
                 "unique_id": "rainfall_sensor",
                 "value": rain_diff  
             },
             "total_rain": {
-                "name": "Total Rain",
-                "unit_of_measurement": "mm",
+                "name": "Общее количество осадков",
+                "unit_of_measurement": "мм",
                 "device_class": "precipitation",
                 "unique_id": "total_rain_sensor",
                 "value": total_rain 
             },
             "abs_pressure": {
-                "name": "Pressure",
-                "unit_of_measurement": "hPa",
+                "name": "Давление",
+                "unit_of_measurement": "гПа",
                 "device_class": "pressure",
                 "unique_id": "pressure_sensor",
                 "value": abs_pressure  
             }
         }
+
 
         for sensor, attributes in sensors.items():
             config_topic = f"{MQTT_TOPIC}/{sensor}/config"
