@@ -21,7 +21,7 @@ MQTT_PORT = 1883
 MQTT_TOPIC= "homeassistant/sensor/0x0x19418021"
 
 client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
-client.username_pw_set("homeassistant","homeassistant") # Change MQTT Login and Password
+client.username_pw_set("<MQTT_USER>","<MQTT_PASSWORD>") # Change MQTT Login and Password
 client.connect(MQTT_BROKER, MQTT_PORT, 60)
 
 def open_ws():
