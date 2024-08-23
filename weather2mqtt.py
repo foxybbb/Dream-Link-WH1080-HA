@@ -6,6 +6,7 @@ import datetime
 import pause
 import paho.mqtt.client as mqtt
 import json
+import os
 VENDOR = 0x1941
 PRODUCT = 0x8021
 WIND_DIRS = ['С', 'ССВ', 'СВ', 'ВСВ', 'В', 'ВЮВ', 'ЮВ', 'ЮЮВ', 'Ю', 'ЮЮЗ',
@@ -15,13 +16,13 @@ previous_rain = 0
 # interval for data collection
 period = 1  # minutes
 
-MQTT_BROKER = "192.168.8.111"
-MQTT_PORT = 1883
+MQTT_BROKER = os.getenv('MQTT_BROKER_HOST')
+MQTT_PORT = os.getenv('MQTT_BROKER_PORT')
 #MQTT_TOPIC = "test/0x0x19418021"
 MQTT_TOPIC= "homeassistant/sensor/0x19418021"
 
 client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
-client.username_pw_set("homeassistant","3333") # Change MQTT Login and Password
+client.username_pw_set(os.getenv('MQTT_USERNAME'),os.getenv('MQTT_PASSWORD')) # Change MQTT Login and Password
 client.connect(MQTT_BROKER, MQTT_PORT, 60)
 
 def open_ws():
@@ -178,14 +179,14 @@ try:
                 "unit_of_measurement": "°C",
                 "device_class": "temperature",
                 "unique_id": "indoor_temperature_sensor",
-                "value": indoor_temperature  
+                "value":  round(indoor_temperature, 2) 
             },
             "outdoor_temperature": {
                 "name": "Температура снаружи",
                 "unit_of_measurement": "°C",
                 "device_class": "temperature",
                 "unique_id": "outdoor_temperature_sensor",
-                "value": outdoor_temperature  
+                "value":  round(outdoor_temperature, 2)   
             },
             "outdoor_dew_point": {
                 "name": "Точка росы снаружи",
@@ -260,7 +261,7 @@ try:
             client.publish(config_topic, config_payload, retain=True)
             client.publish(state_topic, attributes["value"], retain=True)
 
-            print(f"Published data to MQTT: {attributes["value"]}")
+            print(f"Published data to MQTT: {config_payload}")
         client.disconnect()
 	
 except (KeyboardInterrupt, SystemExit):
