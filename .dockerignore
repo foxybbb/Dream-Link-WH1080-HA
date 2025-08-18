@@ -1,0 +1,34 @@
+# Ignore build artifacts
+target/
+Cargo.lock
+
+# Ignore development files
+.git/
+.gitignore
+*.md
+README.md
+
+# Ignore IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore temporary files
+*.tmp
+*.log
+
+# Ignore docker files (except the ones we need)
+docker-compose.override.yml
+.env.local
+
+# Keep these files
+!Dockerfile
+!docker/
+!config.toml
+!src/
+!Cargo.toml

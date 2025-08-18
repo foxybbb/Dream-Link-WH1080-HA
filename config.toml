@@ -1,0 +1,29 @@
+# Weather Station Configuration File
+# This file contains all the configuration settings for the weather station
+
+# Application language (supported: "en", "ru")
+language = "ru"
+
+[weather_station]
+# USB device identifiers for the Dreamlink WH1080 Weather Station
+vendor_id = 0x1941
+product_id = 0x8021
+
+# Data collection interval in minutes
+period_minutes = 1
+
+# Maximum allowed rain jump to filter out sensor spikes (in mm)
+max_rain_jump = 10.0
+
+[mqtt]
+# MQTT broker connection settings
+broker = "192.168.8.111"
+port = 1883
+username = "homeassistant"
+password = "3333"
+
+# MQTT topic prefix for Home Assistant auto-discovery
+topic_prefix = "homeassistant/sensor/0x19418021"
+
+# MQTT client identifier
+client_id = "weather_station_rust"

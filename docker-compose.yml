@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  weather-station:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      platforms:
+        - linux/arm64    # Raspberry Pi 4/5
+        - linux/arm/v7   # Raspberry Pi 3/Zero
+    image: weather-station:latest
+    container_name: weather-station
+    restart: unless-stopped
+    
+    # USB device access
+    privileged: true
+    devices:
+      - /dev/bus/usb:/dev/bus/usb
+    
+    # Alternative USB access (comment out privileged mode and use this instead)
+    # device_cgroup_rules:
+    #   - 'c 189:* rmw'  # USB devices
+    # volumes:
+    #   - /dev/bus/usb:/dev/bus/usb
+    
+    # Configuration volume
+    volumes:
+      - ./config.toml:/app/config.toml:ro
+      - weather-logs:/app/logs
+    
+    # Network access for MQTT
+    network_mode: host
+    
+    # Environment variables
+    environment:
+      - RUST_LOG=info
+      - TZ=Europe/Moscow  # Change to your timezone
+    
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "pgrep", "weather-station"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  weather-logs:
+    driver: local
+
+# Alternative docker-compose for development/testing without USB device
+---
+version: '3.8'
+services:
+  weather-station-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: weather-station:dev
+    container_name: weather-station-dev
+    restart: "no"
+    volumes:
+      - ./config.toml:/app/config.toml:ro
+    environment:
+      - RUST_LOG=debug
+      - TZ=Europe/Moscow
+    profiles:
+      - dev

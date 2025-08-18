@@ -1,0 +1,11 @@
+# Dreamlink WH1080 Weather Station USB permissions for Docker
+# This allows the weather station container to access the USB device
+
+# Rule for the weather station (vendor 1941, product 8021)
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="1941", ATTR{idProduct}=="8021", MODE="0666", GROUP="plugdev"
+
+# Alternative rule using TAG for systemd
+SUBSYSTEM=="usb", ATTR{idVendor}=="1941", ATTR{idProduct}=="8021", TAG+="uaccess"
+
+# Additional rule for device access
+ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="1941", ATTR{idProduct}=="8021", MODE="0666"
