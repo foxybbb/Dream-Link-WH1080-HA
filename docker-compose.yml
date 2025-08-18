@@ -1,13 +1,8 @@
-version: '3.8'
-
 services:
   weather-station:
     build:
       context: .
       dockerfile: Dockerfile
-      platforms:
-        - linux/arm64    # Raspberry Pi 4/5
-        - linux/arm/v7   # Raspberry Pi 3/Zero
     image: weather-station:latest
     container_name: weather-station
     restart: unless-stopped

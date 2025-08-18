@@ -15,7 +15,8 @@ RUN apt-get update && apt-get install -y \
 
 # Set up cross-compilation targets
 ARG TARGETPLATFORM
-RUN case "$TARGETPLATFORM" in \
+RUN echo "Building for platform: $TARGETPLATFORM" && \
+    case "$TARGETPLATFORM" in \
     "linux/arm64") \
         rustup target add aarch64-unknown-linux-gnu && \
         echo "aarch64-unknown-linux-gnu" > /target_triple \
@@ -25,22 +26,34 @@ RUN case "$TARGETPLATFORM" in \
         echo "armv7-unknown-linux-gnueabihf" > /target_triple \
         ;; \
     *) \
-        echo "Unsupported platform: $TARGETPLATFORM" && exit 1 \
+        echo "Using native compilation for platform: $TARGETPLATFORM" && \
+        echo "native" > /target_triple \
         ;; \
     esac
 
 # Set up cross-compilation environment
-RUN TARGET_TRIPLE=$(cat /target_triple) && \
-    case "$TARGET_TRIPLE" in \
-    "aarch64-unknown-linux-gnu") \
-        echo '[target.aarch64-unknown-linux-gnu]' > ~/.cargo/config.toml && \
-        echo 'linker = "aarch64-linux-gnu-gcc"' >> ~/.cargo/config.toml \
-        ;; \
-    "armv7-unknown-linux-gnueabihf") \
-        echo '[target.armv7-unknown-linux-gnueabihf]' > ~/.cargo/config.toml && \
-        echo 'linker = "arm-linux-gnueabihf-gcc"' >> ~/.cargo/config.toml \
-        ;; \
-    esac
+RUN if [ -f /target_triple ]; then \
+        TARGET_TRIPLE=$(cat /target_triple) && \
+        echo "Setting up cross-compilation for: $TARGET_TRIPLE" && \
+        case "$TARGET_TRIPLE" in \
+        "aarch64-unknown-linux-gnu") \
+            echo '[target.aarch64-unknown-linux-gnu]' > ~/.cargo/config.toml && \
+            echo 'linker = "aarch64-linux-gnu-gcc"' >> ~/.cargo/config.toml \
+            ;; \
+        "armv7-unknown-linux-gnueabihf") \
+            echo '[target.armv7-unknown-linux-gnueabihf]' > ~/.cargo/config.toml && \
+            echo 'linker = "arm-linux-gnueabihf-gcc"' >> ~/.cargo/config.toml \
+            ;; \
+        "native") \
+            echo "Using native compilation, no cross-compilation config needed" \
+            ;; \
+        *) \
+            echo "Warning: Unknown target triple: $TARGET_TRIPLE, using default configuration" \
+            ;; \
+        esac; \
+    else \
+        echo "Warning: /target_triple file not found, using default configuration"; \
+    fi
 
 # Create app directory
 WORKDIR /app
@@ -51,7 +64,11 @@ COPY Cargo.toml Cargo.lock ./
 # Create dummy main.rs to build dependencies
 RUN mkdir src && echo "fn main() {}" > src/main.rs
 RUN TARGET_TRIPLE=$(cat /target_triple) && \
-    cargo build --release --target $TARGET_TRIPLE && \
+    if [ "$TARGET_TRIPLE" = "native" ]; then \
+        cargo build --release; \
+    else \
+        cargo build --release --target $TARGET_TRIPLE; \
+    fi && \
     rm -rf src
 
 # Copy source code
@@ -59,8 +76,15 @@ COPY src ./src
 
 # Build the application
 RUN TARGET_TRIPLE=$(cat /target_triple) && \
-    cargo build --release --target $TARGET_TRIPLE && \
-    cp target/$TARGET_TRIPLE/release/weather-station /weather-station
+    if [ "$TARGET_TRIPLE" = "native" ]; then \
+        echo "Building with native toolchain" && \
+        cargo build --release && \
+        cp target/release/weather-station /weather-station; \
+    else \
+        echo "Building with cross-compilation for $TARGET_TRIPLE" && \
+        cargo build --release --target $TARGET_TRIPLE && \
+        cp target/$TARGET_TRIPLE/release/weather-station /weather-station; \
+    fi
 
 # Runtime stage
 FROM debian:bullseye-slim
