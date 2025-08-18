@@ -85,6 +85,7 @@ RUN chmod +x /app/weather-station
 COPY config.toml /app/config/
 
 # Create udev rules for USB access
+RUN mkdir -p /etc/udev/rules.d/
 COPY docker/41-weather-device.rules /etc/udev/rules.d/
 
 # Set working directory
