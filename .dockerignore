@@ -1,6 +1,5 @@
 # Ignore build artifacts
 target/
-Cargo.lock
 
 # Ignore development files
 .git/
@@ -32,3 +31,4 @@ docker-compose.override.yml
 !config.toml
 !src/
 !Cargo.toml
+!Cargo.lock
